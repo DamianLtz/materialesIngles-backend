@@ -172,7 +172,7 @@ export class AsignacionMasivaService {
       .where('p.deleted_at IS NULL')
       .andWhere('o.deleted_at IS NULL')
       .andWhere('o.etapa_id = :etapaId', { etapaId: etapa.id })
-      .orderBy('e.distrito', 'ASC')
+      .orderBy('e.comuna', 'ASC', 'NULLS LAST')
       .addOrderBy('e.nombre', 'ASC')
       .addOrderBy('g.nombre', 'ASC')
       .addOrderBy('p.id', 'ASC')

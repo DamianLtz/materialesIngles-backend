@@ -4,7 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository, type FindOptionsWhere } from 'typeorm';
+import {
+  ILike,
+  Repository,
+  type FindOptionsOrder,
+  type FindOptionsWhere,
+} from 'typeorm';
 import { crearXlsx } from '../common/excel.js';
 import {
   escaparLike,
@@ -21,7 +26,7 @@ export interface EscuelaDto {
   id: number;
   cueanexo: string;
   nombre: string;
-  distrito: number;
+  comuna: number | null;
   descripcion: string | null;
   calle: string;
   altura: number;
@@ -36,7 +41,7 @@ export interface OpcionEscuelaDto {
   id: number;
   nombre: string;
   cueanexo: string;
-  distrito: number;
+  comuna: number | null;
 }
 
 @Injectable()
@@ -61,25 +66,25 @@ export class EscuelasService {
     );
   }
 
-  /** Todas las escuelas con lo mínimo para elegirlas, ordenadas por distrito y nombre. */
+  /** Todas las escuelas con lo mínimo para elegirlas, ordenadas por comuna y nombre. */
   async opciones(): Promise<OpcionEscuelaDto[]> {
     return this.escuelas.find({
-      select: { id: true, nombre: true, cueanexo: true, distrito: true },
-      order: { distrito: 'ASC', nombre: 'ASC' },
+      select: { id: true, nombre: true, cueanexo: true, comuna: true },
+      order: POR_COMUNA_Y_NOMBRE,
     });
   }
 
-  /** Excel con las escuelas que coinciden con la búsqueda, ordenadas por distrito y nombre. */
+  /** Excel con las escuelas que coinciden con la búsqueda, ordenadas por comuna y nombre. */
   async exportar(search?: string): Promise<Buffer> {
     const filas = await this.escuelas.find({
       where: filtroDeBusqueda(search),
-      order: { distrito: 'ASC', nombre: 'ASC' },
+      order: POR_COMUNA_Y_NOMBRE,
     });
     return crearXlsx(
       [
         'Nombre',
         'CUE/Anexo',
-        'Distrito',
+        'Comuna',
         'Calle',
         'Número',
         'Código Postal',
@@ -88,7 +93,7 @@ export class EscuelasService {
       filas.map((e) => [
         e.nombre,
         e.cueanexo,
-        e.distrito,
+        e.comuna,
         e.calle,
         e.altura,
         e.codigoPostal,
@@ -164,6 +169,12 @@ export class EscuelasService {
   }
 }
 
+/** Las escuelas sin comuna (migradas y todavía no cargadas) van al final. */
+const POR_COMUNA_Y_NOMBRE: FindOptionsOrder<Escuela> = {
+  comuna: { direction: 'ASC', nulls: 'LAST' },
+  nombre: 'ASC',
+};
+
 /** Como en el original, se busca en el nombre y en el CUE/Anexo. */
 function filtroDeBusqueda(
   search?: string,
@@ -177,7 +188,7 @@ function valoresEditables(datos: GuardarEscuelaDto) {
   return {
     cueanexo: datos.cueanexo,
     nombre: datos.nombre,
-    distrito: datos.distrito,
+    comuna: datos.comuna,
     descripcion: datos.descripcion ?? null,
     calle: datos.calle,
     altura: datos.altura,
@@ -194,7 +205,7 @@ function aDto(e: Escuela, participaEnEtapaActiva: boolean): EscuelaDto {
     id: e.id,
     cueanexo: e.cueanexo,
     nombre: e.nombre,
-    distrito: e.distrito,
+    comuna: e.comuna,
     descripcion: e.descripcion,
     calle: e.calle,
     altura: e.altura,

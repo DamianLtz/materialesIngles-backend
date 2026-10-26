@@ -43,7 +43,6 @@ export interface OrigenEscuela extends Tiempos {
   id: number;
   cueanexo: string;
   name: string;
-  disctrict_number: number;
   description: string | null;
   street: string;
   street_number: number;
@@ -374,7 +373,7 @@ export function transformar(origen: Origen, ahora: string): Resultado {
         id: e.id,
         cueanexo: e.cueanexo,
         nombre: e.name,
-        distrito: e.disctrict_number,
+        // Sin comuna: el original no la tiene y se carga a mano (el distrito escolar no se migra)
         descripcion: e.description,
         calle: e.street,
         altura: e.street_number,

@@ -15,9 +15,9 @@ export class Escuela extends EntidadBase {
   @Column({ type: 'varchar' })
   nombre: string;
 
-  /** Distrito escolar (disctrict_number en el original). */
-  @Column({ type: 'int' })
-  distrito: number;
+  /** Comuna de CABA (1 a 15). Nula en las escuelas migradas hasta que se cargue. */
+  @Column({ type: 'int', nullable: true })
+  comuna: number | null;
 
   @Column({ type: 'varchar', nullable: true })
   descripcion: string | null;

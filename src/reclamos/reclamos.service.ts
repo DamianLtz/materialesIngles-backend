@@ -241,7 +241,7 @@ export class ReclamosService {
     return { archivados: resultado.affected ?? 0 };
   }
 
-  /** Excel con los reclamos vigentes de la etapa, por distrito, escuela y lote. */
+  /** Excel con los reclamos vigentes de la etapa, por comuna, escuela y lote. */
   async exportar(
     etapaId: number,
   ): Promise<{ archivo: Buffer; etapaNombre: string }> {
@@ -250,7 +250,7 @@ export class ReclamosService {
       .select('p.id', 'lote')
       .addSelect('e.cueanexo', 'cueanexo')
       .addSelect('e.nombre', 'escuela')
-      .addSelect('e.distrito', 'distrito')
+      .addSelect('e.comuna', 'comuna')
       .addSelect('e.descripcion', 'dependencia')
       .addSelect('e.calle', 'calle')
       .addSelect('e.altura', 'altura')
@@ -264,7 +264,7 @@ export class ReclamosService {
       .addSelect('r.cantidad', 'cantidad')
       .addSelect('r.estado', 'estado')
       .addSelect('r.created_at', 'fecha')
-      .orderBy('e.distrito', 'ASC')
+      .orderBy('e.comuna', 'ASC', 'NULLS LAST')
       .addOrderBy('e.nombre', 'ASC')
       .addOrderBy('p.id', 'ASC')
       .addOrderBy('r.id', 'ASC')
@@ -272,7 +272,7 @@ export class ReclamosService {
         lote: number;
         cueanexo: string;
         escuela: string;
-        distrito: number;
+        comuna: number | null;
         dependencia: string | null;
         calle: string;
         altura: number;
@@ -293,7 +293,7 @@ export class ReclamosService {
         'Etapa',
         'CUE Anexo',
         'Escuela',
-        'Distrito Escolar',
+        'Comuna',
         'Dependencia Funcional',
         'Calle',
         'Altura',
@@ -313,7 +313,7 @@ export class ReclamosService {
         etapa.nombre,
         f.cueanexo,
         f.escuela,
-        f.distrito,
+        f.comuna,
         f.dependencia,
         f.calle,
         f.altura,

@@ -32,11 +32,11 @@ export class GuardarEscuelaDto {
   @IsString({ message: 'El nombre es obligatorio.' })
   nombre: string;
 
-  /** Distrito escolar. */
-  @Max(99, { message: 'El distrito no puede ser mayor a 99.' })
-  @Min(1, { message: 'El distrito debe ser 1 o mayor.' })
-  @IsInt({ message: 'El distrito debe ser un número.' })
-  distrito: number;
+  /** Comuna de CABA. Obligatoria al guardar, aunque las migradas la tengan nula. */
+  @Max(15, { message: 'La comuna debe estar entre 1 y 15.' })
+  @Min(1, { message: 'La comuna debe estar entre 1 y 15.' })
+  @IsInt({ message: 'La comuna debe ser un número.' })
+  comuna: number;
 
   /** Texto vacío o null equivalen a "sin descripción". */
   @IsOptional()

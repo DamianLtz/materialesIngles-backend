@@ -60,7 +60,7 @@ async function leerOrigen(url: string): Promise<Origen> {
         `SELECT id, isbn_number, option_type_id, book_type_id, publisher, title, ${tiempos} FROM books`,
       ),
       escuelas: await leer(
-        `SELECT id, cueanexo, name, disctrict_number, description, street, street_number, postal_code, ${tiempos} FROM schools`,
+        `SELECT id, cueanexo, name, description, street, street_number, postal_code, ${tiempos} FROM schools`,
       ),
       etapas: await leer(
         `SELECT id, name, start, \`end\`, legend, claim_start, claim_end, claim_legend, view, ${tiempos} FROM orders`,

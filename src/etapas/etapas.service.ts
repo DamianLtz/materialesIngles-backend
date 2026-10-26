@@ -72,7 +72,7 @@ export interface EscuelaDeEtapaDto {
   id: number;
   nombre: string;
   cueanexo: string;
-  distrito: number;
+  comuna: number | null;
 }
 
 /** Un pedido vigente, con lo mínimo para decidir si se puede quitar o bajar algo. */
@@ -155,14 +155,14 @@ export class EtapasService {
     const filas = await this.escuelas
       .createQueryBuilder('e')
       .innerJoin('e.etapas', 'et', 'et.id = :id', { id })
-      .orderBy('e.distrito', 'ASC')
+      .orderBy('e.comuna', 'ASC', 'NULLS LAST')
       .addOrderBy('e.nombre', 'ASC')
       .getMany();
-    return filas.map(({ id, nombre, cueanexo, distrito }) => ({
+    return filas.map(({ id, nombre, cueanexo, comuna }) => ({
       id,
       nombre,
       cueanexo,
-      distrito,
+      comuna,
     }));
   }
 

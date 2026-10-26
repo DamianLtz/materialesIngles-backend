@@ -22,7 +22,7 @@ async function mensajes(datos: Record<string, unknown>) {
 const valida = {
   cueanexo: '200002',
   nombre: 'Escuela Primaria N° 2',
-  distrito: 4,
+  comuna: 4,
   calle: 'Av. Rivadavia',
   altura: 1234,
   codigoPostal: 'C1033',
@@ -45,12 +45,19 @@ describe('GuardarEscuelaDto', () => {
     ]);
   });
 
-  it('distrito y número son enteros dentro de un rango', async () => {
-    expect(await mensajes({ ...valida, distrito: 0 })).toEqual([
-      'El distrito debe ser 1 o mayor.',
+  it('comuna y número son enteros dentro de un rango', async () => {
+    expect(await mensajes({ ...valida, comuna: 0 })).toEqual([
+      'La comuna debe estar entre 1 y 15.',
     ]);
-    expect(await mensajes({ ...valida, distrito: '4' })).toEqual([
-      'El distrito debe ser un número.',
+    expect(await mensajes({ ...valida, comuna: 16 })).toEqual([
+      'La comuna debe estar entre 1 y 15.',
+    ]);
+    expect(await mensajes({ ...valida, comuna: '4' })).toEqual([
+      'La comuna debe ser un número.',
+    ]);
+    // Las migradas no tienen comuna, pero al guardar es obligatoria
+    expect(await mensajes({ ...valida, comuna: null })).toEqual([
+      'La comuna debe ser un número.',
     ]);
     expect(await mensajes({ ...valida, altura: -1 })).toEqual([
       'El número no puede ser negativo.',

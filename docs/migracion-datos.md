@@ -34,6 +34,7 @@ Fue probado el 23/10/2026 con el dump real de ese día: ver "Resultado de refere
 | Cantidad máxima de ofertas | La **mayor entre 100 y lo más alto pedido** en esa oferta (el original la dejaba en 1 sin controlarla). |
 | Etapas borradas | Sus ofertas y pedidos que seguían vigentes se borran con la fecha de la etapa, y los reclamos vigentes de esos pedidos también. |
 | Historial | Pedidos con libro borrado, reclamos con tipo borrado y reclamos que ya colgaban de un pedido borrado quedan como están. |
+| Escuelas | El distrito escolar (`disctrict_number`) **no se migra**: la app usa comuna, que el original no tiene. Las escuelas quedan **sin comuna** y se completa a mano editándolas en el backoffice (al guardar es obligatoria). |
 | Usuarios | Email en minúsculas, `google_id` se conserva (entran directo con Google), `version_sesion` en 0, sin avatar. |
 | Estados de reclamo | Se copian tal cual; un estado desconocido **frena** la migración. |
 

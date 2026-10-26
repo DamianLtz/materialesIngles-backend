@@ -207,7 +207,7 @@ export class PedidosService {
     await this.pedidos.softRemove(pedido);
   }
 
-  /** Excel con los pedidos vigentes de la etapa, por distrito, escuela y grado. */
+  /** Excel con los pedidos vigentes de la etapa, por comuna, escuela y grado. */
   async exportar(
     etapaId: number,
   ): Promise<{ archivo: Buffer; etapaNombre: string }> {
@@ -216,7 +216,7 @@ export class PedidosService {
     const filas = await this.consultaPedidos(etapaId)
       .select('e.cueanexo', 'cueanexo')
       .addSelect('e.nombre', 'escuela')
-      .addSelect('e.distrito', 'distrito')
+      .addSelect('e.comuna', 'comuna')
       .addSelect('e.descripcion', 'dependencia')
       .addSelect('e.calle', 'calle')
       .addSelect('e.altura', 'altura')
@@ -227,14 +227,14 @@ export class PedidosService {
       .addSelect('l.editorial', 'editorial')
       .addSelect('l.titulo', 'titulo')
       .addSelect('p.cantidad', 'cantidad')
-      .orderBy('e.distrito', 'ASC')
+      .orderBy('e.comuna', 'ASC', 'NULLS LAST')
       .addOrderBy('e.nombre', 'ASC')
       .addOrderBy('g.nombre', 'ASC')
       .addOrderBy('p.id', 'ASC')
       .getRawMany<{
         cueanexo: string;
         escuela: string;
-        distrito: number;
+        comuna: number | null;
         dependencia: string | null;
         calle: string;
         altura: number;
@@ -251,7 +251,7 @@ export class PedidosService {
         'Etapa',
         'CUE Anexo',
         'Escuela',
-        'Distrito Escolar',
+        'Comuna',
         'Dependencia Funcional',
         'Calle',
         'Altura',
@@ -267,7 +267,7 @@ export class PedidosService {
         etapa.nombre,
         f.cueanexo,
         f.escuela,
-        f.distrito,
+        f.comuna,
         f.dependencia,
         f.calle,
         f.altura,

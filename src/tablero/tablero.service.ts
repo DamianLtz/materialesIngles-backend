@@ -54,7 +54,7 @@ export interface ResumenTableroDto {
     porGrado: PuntoGrafico[];
     porCatalogo: PuntoGrafico[];
     porEditorial: PuntoGrafico[];
-    porDistrito: PuntoGrafico[];
+    porComuna: PuntoGrafico[];
     reclamosPorTipo: { label: string; cantidad: number }[];
   };
 }
@@ -173,7 +173,7 @@ export class TableroService {
       porGrado,
       porCatalogo,
       porEditorial,
-      porDistrito,
+      porComuna,
       porTipo,
     ] = await Promise.all([
       this.dataSource.query<{ escuelas: number; ofertas: number }[]>(
@@ -213,7 +213,8 @@ export class TableroService {
       this.puntos(id, 'g.nombre', 'JOIN grados g ON g.id = o.grado_id'),
       this.puntos(id, 'c.nombre', 'JOIN catalogos c ON c.id = o.catalogo_id'),
       this.puntos(id, 'l.editorial', 'JOIN libros l ON l.id = p.libro_id'),
-      this.puntos(id, "'Distrito ' || e.distrito", ''),
+      // 'Comuna ' || NULL da NULL: las escuelas todavía sin comuna se agrupan aparte
+      this.puntos(id, "COALESCE('Comuna ' || e.comuna, 'Sin comuna')", ''),
       this.dataSource.query<{ label: string; cantidad: number }[]>(
         `SELECT t.nombre AS label, COUNT(*)::int AS cantidad
          ${RECLAMOS_DE_LA_ETAPA}
@@ -290,7 +291,7 @@ export class TableroService {
         porGrado: porGrado.sort(porNombre),
         porCatalogo: porCatalogo.sort(porNombre),
         porEditorial: topConOtros(porEditorial, MAX_EDITORIALES),
-        porDistrito: porDistrito.sort(porNombre),
+        porComuna: porComuna.sort(porNombre),
         reclamosPorTipo: tipos,
       },
     };
@@ -303,7 +304,7 @@ export class TableroService {
     const etapa = await this.buscarEtapa(etapaId);
     const filas = await this.dataSource.query<
       {
-        distrito: number;
+        comuna: number | null;
         cueanexo: string;
         escuela: string;
         con_pedido: number;
@@ -311,7 +312,7 @@ export class TableroService {
         faltan: string | null;
       }[]
     >(
-      `SELECT e.distrito, e.cueanexo, e.nombre AS escuela,
+      `SELECT e.comuna, e.cueanexo, e.nombre AS escuela,
               COUNT(*) FILTER (WHERE p.id IS NOT NULL)::int AS con_pedido,
               COUNT(o.id)::int AS totales,
               string_agg(g.nombre || ' – ' || c.nombre, ', ' ORDER BY g.nombre, c.nombre)
@@ -325,12 +326,12 @@ export class TableroService {
        WHERE ee.etapa_id = $1
        GROUP BY e.id
        HAVING COUNT(*) FILTER (WHERE p.id IS NULL) > 0
-       ORDER BY e.distrito, e.nombre`,
+       ORDER BY e.comuna NULLS LAST, e.nombre`,
       [etapaId],
     );
     const archivo = await crearXlsx(
       [
-        'Distrito',
+        'Comuna',
         'CUE/Anexo',
         'Escuela',
         'Estado',
@@ -339,7 +340,7 @@ export class TableroService {
         'Faltan',
       ],
       filas.map((f) => [
-        f.distrito,
+        f.comuna,
         f.cueanexo,
         f.escuela,
         f.con_pedido === 0 ? 'Sin pedidos' : 'Parcial',
