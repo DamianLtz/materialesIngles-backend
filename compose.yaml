@@ -1,0 +1,24 @@
+# Entorno de desarrollo local
+#   docker compose up -d     -> Postgres en localhost:${DB_PORT}
+#   docker compose down
+name: materialesingles
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # Postgres 18 guarda los datos en un subdirectorio por versión dentro de /var/lib/postgresql
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  postgres-data:
